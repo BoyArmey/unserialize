@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <!--头部信息-->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--title keywords description 请改为自己的-->
+    <title>php反序列化</title>
+    <meta name="keywords" content="PHP反序列化漏洞靶场" />
+
+    <!--CSS 若不需要变动样式不用改-->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/zui/1.8.1/css/zui.min.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        ul {
+            padding: 0;
+        }
+
+        li {
+            list-style: none;
+        }
+
+        a:hover,
+        a:active,
+        a:focus {
+            text-decoration: none;
+        }
+
+        body {
+            background-color: #99ccff;
+            background-repeat: repeat;
+            background-attachment: fixed;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        i.icon,
+        i.fa {
+            margin-right: 6px
+        }
+
+        .col,
+        .col-xs-1,
+        .col-xs-2,
+        .col-xs-3,
+        .col-xs-4,
+        .col-xs-5,
+        .col-xs-6,
+        .col-xs-7,
+        .col-xs-8,
+        .col-xs-9,
+        .col-xs-10,
+        .col-xs-11,
+        .col-xs-12,
+        .col-sm-1,
+        .col-sm-2,
+        .col-sm-3,
+        .col-sm-4,
+        .col-sm-5,
+        .col-sm-6,
+        .col-sm-7,
+        .col-sm-8,
+        .col-sm-9,
+        .col-sm-10,
+        .col-sm-11,
+        .col-sm-12,
+        .col-md-1,
+        .col-md-2,
+        .col-md-3,
+        .col-md-4,
+        .col-md-5,
+        .col-md-6,
+        .col-md-7,
+        .col-md-8,
+        .col-md-9,
+        .col-md-10,
+        .col-md-11,
+        .col-md-12,
+        .col-lg-1,
+        .col-lg-2,
+        .col-lg-3,
+        .col-lg-4,
+        .col-lg-5,
+        .col-lg-6,
+        .col-lg-7,
+        .col-lg-8,
+        .col-lg-9,
+        .col-lg-10,
+        .col-lg-11,
+        .col-lg-12 {
+            padding: 0px 5px;
+        }
+
+
+
+        .content-box {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 10px;
+        }
+
+        .item>.container-fluid .row {
+            padding: 10px 5px;
+        }
+
+        .item-tit>strong {
+            color: #999;
+            font-size: 18px;
+            font-weight: 400;
+            display: block;
+            margin-bottom: 10px;
+            padding-left: 5px;
+        }
+
+        .item-tit>strong>i {
+            margin-right: 5px;
+            font-size: 18px;
+        }
+
+        .card-link {
+            display: block;
+            padding: 10px 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 10px;
+            background: #fff;
+            transition: all 0.2s ease-out;
+            -moz-transition: all 0.2s ease-out;
+            /* Firefox 4 */
+            -webkit-transition: all 0.2s ease-out;
+            /* Safari Chrome */
+            -o-transition: all 0.2s ease-out;
+            /* Opera */
+        }
+
+        .card-link:hover {
+            transform: translateY(-5px);
+            -ms-transform: translateY(-5px);
+            /* IE 9 */
+            -moz-transform: translateY(-5px);
+            /* Firefox */
+            -webkit-transform: translateY(-5px);
+            /* Safari  Chrome */
+            -o-transform: translateY(-5px);
+            /* Opera */
+            box-shadow: 4px 4px 10px rgba(204, 204, 204, 0.5);
+            -moz-box-shadow: 4px 4px 10px rgba(204, 204, 204, 0.5);
+            /* Firefox */
+        }
+
+        .card-tit {
+            height: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: normal;
+        }
+
+        .card-tit img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .card-desc {
+            color: gray;
+            font-size: 12px;
+            padding-top: 10px;
+            height: 45px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: normal;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .content-box .list-box {
+            background: #FFF;
+            padding: 20px 10px 0px 10px;
+            margin: 0;
+        }
+
+        #get-top {
+            width: 40px;
+            height: 40px;
+            background: #03b8cf;
+            color: #FFF;
+            position: fixed;
+            right: 15px;
+            bottom: 55px;
+            line-height: 30px;
+            text-align: center;
+            font-size: 30px;
+            cursor: pointer;
+            display: none;
+            z-index: 100;
+        }
+
+        #get-top i {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        @media (min-width: 768px) {
+
+            .col,
+            .col-xs-1,
+            .col-xs-2,
+            .col-xs-3,
+            .col-xs-4,
+            .col-xs-5,
+            .col-xs-6,
+            .col-xs-7,
+            .col-xs-8,
+            .col-xs-9,
+            .col-xs-10,
+            .col-xs-11,
+            .col-xs-12,
+            .col-sm-1,
+            .col-sm-2,
+            .col-sm-3,
+            .col-sm-4,
+            .col-sm-5,
+            .col-sm-6,
+            .col-sm-7,
+            .col-sm-8,
+            .col-sm-9,
+            .col-sm-10,
+            .col-sm-11,
+            .col-sm-12,
+            .col-md-1,
+            .col-md-2,
+            .col-md-3,
+            .col-md-4,
+            .col-md-5,
+            .col-md-6,
+            .col-md-7,
+            .col-md-8,
+            .col-md-9,
+            .col-md-10,
+            .col-md-11,
+            .col-md-12,
+            .col-lg-1,
+            .col-lg-2,
+            .col-lg-3,
+            .col-lg-4,
+            .col-lg-5,
+            .col-lg-6,
+            .col-lg-7,
+            .col-lg-8,
+            .col-lg-9,
+            .col-lg-10,
+            .col-lg-11,
+            .col-lg-12 {
+                padding: 0 10px
+            }
+
+            #content .main {
+                padding-top: 51px;
+            }
+
+            .sousuo {
+                padding: 10px 0 50px 0;
+                margin-top: 0;
+            }
+
+            .sousuo-form {
+                width: 100%;
+                margin: 0 auto;
+            }
+
+            #input {
+                outline: none;
+                padding: 0 10px;
+                height: 46px;
+                line-height: 46px;
+                border: 1px solid #ccc;
+                border-left: none;
+                display: block;
+                padding-left: 90px;
+            }
+
+            .link-box {
+                width: 12.5%;
+                float: left
+            }
+
+            .item-tit>strong {
+                color: #F0F0F0;
+                font-size: 20px;
+                font-weight: bold;
+                padding: 5px 0 0 10px;
+                margin-bottom: 10px;
+            }
+
+            .get-home {
+                margin: 0;
+                margin-top: 20px;
+            }
+
+        }
+
+        @media (min-width: 992px) {
+            header {
+                height: 60px;
+                border-bottom: 1px solid #e8e8e8;
+            }
+
+            header .main {
+                padding: 0 22px;
+            }
+
+            header .logo {
+                float: left;
+                font-size: 22px;
+                margin: 0;
+                font-weight: 400;
+                border: none;
+            }
+
+            header .logo a {
+                display: block;
+                line-height: 50px;
+                color: #484848;
+                font-weight: 400;
+            }
+
+            header .logo img {
+                width: 30px;
+                vertical-align: -10px;
+            }
+
+            header .nav {
+                float: left;
+                margin-left: 25px;
+                padding-top: 0px;
+                height: 100%;
+                display: block;
+                overflow: hidden;
+                position: static;
+                width: auto;
+                box-shadow: none;
+            }
+
+            header .nav li {
+                float: left;
+                font-size: 16px;
+            }
+
+            header .nav a {
+                display: block;
+                line-height: 59px;
+                color: #959595;
+                padding: 0 18px;
+                border-bottom: 1px solid #e8e8e8;
+            }
+
+            header .nav a:hover {
+                border-color: #459df5;
+                color: #459df5;
+            }
+
+            .left-bar {
+                height: 100%;
+                background: #FFF;
+                top: 60px;
+                left: 0;
+                z-index: 1;
+            }
+
+            .left-bar .header {
+                padding: 11px 0px;
+                border-bottom: none;
+                margin: 0 25px;
+                padding-top: 15px;
+            }
+
+            .left-bar .header h2 {
+                color: #28b779;
+                font-size: 16px;
+                font-weight: bold;
+                line-height: inherit;
+                border-left: 3px solid #28b779;
+                padding-left: 10px;
+            }
+
+            .left-bar .menu {
+                height: 600px;
+                border-top: 1px solid #f2f2f2;
+                border-bottom: 1px solid #f2f2f2
+            }
+
+            .left-bar .tree-menu {
+                border-bottom: 1px solid #e8e8e8;
+            }
+
+            .left-bar .tree li.open>ul {
+                height: 281px;
+                background: #f5f5f5;
+            }
+
+            .tree-menu li li a {
+                color: #797979;
+                font-size: 14px;
+            }
+
+            .search {
+                width: 650px;
+            }
+
+            .search-engine {
+                width: 650px;
+            }
+
+            .search-engine-list li {
+                width: 112px;
+                margin: 0 15px 15px 0;
+            }
+
+            #content .main {
+                margin-left: 30px;
+                padding-top: 0px
+            }
+
+            .content-box {
+                padding: 0 10px;
+                padding-top: 61px
+            }
+
+            .nav-item .container-fluid {
+                padding: 20px 20px 10px 20px;
+            }
+
+            .item>.container-fluid .row {
+                padding: 0;
+            }
+
+            .card-box .col-md-3 {
+                padding: 0 7.5px;
+            }
+
+            .card-link {
+                margin-bottom: 15px;
+            }
+
+            .main .list-box .menu-list {
+                margin: 0px 10px 20px 10px;
+            }
+
+            .nav-tabs>li>a {
+                padding: 4px 15px;
+            }
+
+            .footer {
+                margin-top: 30px;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            header .nav a {
+                padding: 0 25px;
+            }
+
+            .content-box {
+                padding: 0 20px;
+            }
+
+            .sousuo-form {
+                width: 60%
+            }
+
+            .item>.container-fluid {
+                padding: 0;
+                padding-top: 91px;
+                margin-top: -65px;
+            }
+        }
+
+        @media (min-width: 1700px) {
+            .content-box {
+                max-width: 1400px;
+            }
+
+            .col-md-3 {
+                width: 20%;
+            }
+        }
+    </style>
+</head>
+
+<body id="nav_body">
+    <header>
+    </header>
+    <div id="content">
+        <div class="main">
+            <div class="container content-box">
+                <section class="item card-box" id="row-1">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="item-tit">
+                                <strong>1. 新手教程——基础简介</strong>
+                            </div>
+                            <!--获取内容列表-->
+                            <div class="clearfix two-list-box">
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-1/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">类的实例化</div>
+                                        <div class="card-desc">类的实例化、成员属性赋值、成员方法调用、输出实例化对象</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-1/2.php" class="card-link" target="_blank">
+                                        <div class="card-tit">整形变量序列化</div>
+                                        <div class="card-desc">整形变量序列化演示代码</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-1/3.php" class="card-link" target="_blank">
+                                        <div class="card-tit">字符串变量序列化</div>
+                                        <div class="card-desc">字符串变量序列化演示代码</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-1/4.php" class="card-link" target="_blank">
+                                        <div class="card-tit">浮点类型变量序列化</div>
+                                        <div class="card-desc">浮点类型变量序列化演示代码</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-1/5.php" class="card-link" target="_blank">
+                                        <div class="card-tit">空类型变量序列化</div>
+                                        <div class="card-desc">空类型变量序列化演示代码</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-1/6.php" class="card-link" target="_blank">
+                                        <div class="card-tit">布尔类型变量序列化</div>
+                                        <div class="card-desc">布尔类型变量序列化演示代码</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-1/7.php" class="card-link" target="_blank">
+                                        <div class="card-tit">数组类型变量序列化</div>
+                                        <div class="card-desc">数组类型变量序列化演示代码</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-1/8.php" class="card-link" target="_blank">
+                                        <div class="card-tit">对象序列化</div>
+                                        <div class="card-desc">对象序列化演示代码</div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!--范例二 导航内容参考修改，如果需要更多的分类，拷贝整个section标签进行修改-->
+
+                <section class="item card-box" id="row-2">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="item-tit">
+                                <strong>2. 小试牛刀——反序列化漏洞</strong>
+                            </div>
+                            <!--获取内容列表-->
+                            <div class="clearfix ">
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-2/challenge1/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">案例一</div>
+                                        <div class="card-desc">PHP反序列化一血</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-2/challenge2/2.php" class="card-link" target="_blank">
+                                        <div class="card-tit">案例二</div>
+                                        <div class="card-desc">PHP反序列化双杀</div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="item card-box" id="row-3">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="item-tit">
+                                <strong>3. 初入江湖——魔术方法</strong>
+                            </div>
+                            <!--获取内容列表-->
+                            <div class="clearfix two-list-box">
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-3/challenge1/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">构造函数：__construct</div>
+                                        <div class="card-desc">在类的实例化时触发</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-3/challenge1/2.php" class="card-link" target="_blank">
+                                        <div class="card-tit">构造函数例题</div>
+                                        <div class="card-desc">构造函数漏洞利用例题</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-3/challenge2/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">析构函数：__destruct</div>
+                                        <div class="card-desc">对象的所有引用被删除或者当对象被显示销毁时执行</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-3/challenge2/2.php" class="card-link" target="_blank">
+                                        <div class="card-tit">析构函数例题</div>
+                                        <div class="card-desc">析构函数漏洞利用例题</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-3/challenge3/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">__sleep()</div>
+                                        <div class="card-desc">函数可以用于清理对象，并返回一个数组，数组值为对象中所有应进行序列化操作的变量的名称。</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-3/challenge3/2.php" class="card-link" target="_blank">
+                                        <div class="card-tit">__sleep()例题</div>
+                                        <div class="card-desc">sleep函数漏洞利用例题</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-3/challenge4/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">__wakeup()</div>
+                                        <div class="card-desc">此函数用于反序列化操作中重新建立数据库连接或执行其他初始化操作。</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-3/challenge4/2.php" class="card-link" target="_blank">
+                                        <div class="card-tit">__wakeup()例题</div>
+                                        <div class="card-desc">__wakeup函数漏洞利用例题</div>
+                                    </a>
+                                </div>
+
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-3/challenge5/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">__toString()</div>
+                                        <div class="card-desc">当对象被当成字符串使用时自动触发toString()</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-3/challenge5/2.php" class="card-link" target="_blank">
+                                        <div class="card-tit">__toString()例题</div>
+                                        <div class="card-desc">__toString()函数漏洞利用例题</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-3/challenge6/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">__invoke()</div>
+                                        <div class="card-desc">当类当成函数进行调用时,自动触发__invoke()</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-3/challenge6/2.php" class="card-link" target="_blank">
+                                        <div class="card-tit">__invoke()例题</div>
+                                        <div class="card-desc">__invoke()函数漏洞利用例题</div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="item card-box" id="row-8">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="item-tit">
+                                <strong>4. 金刚凡境——错误调用触发的魔术方法</strong>
+                            </div>
+                            <!--获取内容列表-->
+                            <div class="clearfix two-list-box">
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-4/challenge1/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">__call()</div>
+                                        <div class="card-desc">调用类中不存在的方法时触发</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-4/challenge1/2.php" class="card-link" target="_blank">
+                                        <div class="card-tit">__call()例题</div>
+                                        <div class="card-desc">__call()函数漏洞利用例题</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-4/challenge2/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">__callStatic()</div>
+                                        <div class="card-desc">调用不能存在的静态方法时自动触发</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-4/challenge2/2.php" class="card-link" target="_blank">
+                                        <div class="card-tit">__callStatic()例题</div>
+                                        <div class="card-desc">__callStatic()函数漏洞利用例题</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-4/challenge3/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">__get()</div>
+                                        <div class="card-desc">调用不存在的成员属性时自动触发</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-4/challenge3/2.php" class="card-link" target="_blank">
+                                        <div class="card-tit">__get()例题</div>
+                                        <div class="card-desc">__get()函数漏洞利用例题</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-4/challenge4/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">__set()</div>
+                                        <div class="card-desc">为不存在的成员属性赋值时自动触发</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-4/challenge4/2.php" class="card-link" target="_blank">
+                                        <div class="card-tit">__set()例题</div>
+                                        <div class="card-desc">__set()函数漏洞利用例题</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-4/challenge5/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">__isset()</div>
+                                        <div class="card-desc">使用isset()/empty()函数检查一个未定义的属性或不可访问的属性时自动触发</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-4/challenge5/2.php" class="card-link" target="_blank">
+                                        <div class="card-tit">__isset()例题</div>
+                                        <div class="card-desc">__isset()函数漏洞利用例题</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-4/challenge6/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">__unset()</div>
+                                        <div class="card-desc">使用unset()函数销毁类中未定义的属性或不可访问的属性时自动触发</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-4/challenge6/2.php" class="card-link" target="_blank">
+                                        <div class="card-tit">__unset()例题</div>
+                                        <div class="card-desc">__unset()函数漏洞利用例题</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-4/challenge7/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">__clone()</div>
+                                        <div class="card-desc">当使用clone关键字创建对象的副本时，会被新生成的对象自动调用</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-4/challenge7/2.php" class="card-link" target="_blank">
+                                        <div class="card-tit">__clone()例题</div>
+                                        <div class="card-desc">__clone()函数漏洞利用例题</div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="item card-box" id="row-9">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="item-tit">
+                                <strong>5. 自在地境Ⅰ —— POP链构造</strong>
+                            </div>
+                            <!--获取内容列表-->
+                            <div class="clearfix two-list-box">
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-5/challenge1/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">初识POP链（一）</div>
+                                        <div class="card-desc">构造POP链案例一</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-5/challenge2/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">初识POP链（二）</div>
+                                        <div class="card-desc">构造POP链案例二</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-5/challenge3/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">初识POP链（三）</div>
+                                        <div class="card-desc">构造POP链案例三</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-5/challenge4/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">初识POP链（四）</div>
+                                        <div class="card-desc">构造POP链案例四</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-5/challenge5/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">POP链构造进阶（一）</div>
+                                        <div class="card-desc">利用魔术方法构造POP链</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-5/challenge6/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">POP链构造进阶（二）</div>
+                                        <div class="card-desc">[MRCTF2020] Ezpop</div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="item card-box" id="row-11">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="item-tit">
+                                <strong>6. 自在地境Ⅱ —— 字符串逃逸</strong>
+                            </div>
+                            <!--获取内容列表-->
+                            <div class="clearfix two-list-box">
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-6/challenge1/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">字符串逃逸（一）</div>
+                                        <div class="card-desc">字符串逃逸减少案例</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-6/challenge2/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">字符串逃逸（二）</div>
+                                        <div class="card-desc">字符串逃逸减少实战</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-6/challenge3/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">字符串逃逸（三）</div>
+                                        <div class="card-desc">字符串逃逸增多案例</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-6/challenge4/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">字符串逃逸（四）</div>
+                                        <div class="card-desc">字符串逃逸增多实战</div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="item card-box" id="row-16">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="item-tit">
+                                <strong>7. 逍遥天境 —— session反序列化与phar反序列化</strong>
+                            </div>
+                            <!--获取内容列表-->
+                            <div class="clearfix two-list-box">
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-7/challenge1/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">session案例（一）</div>
+                                        <div class="card-desc">php存储session格式</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-7/challenge1/2.php" class="card-link" target="_blank">
+                                        <div class="card-tit">session案例（二）</div>
+                                        <div class="card-desc">php_serialize存储session格式。PHP版本：php>=5.54</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-7/challenge1/3.php" class="card-link" target="_blank">
+                                        <div class="card-tit">session案例（三）</div>
+                                        <div class="card-desc">php_binary存储session格式</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-7/challenge1/4.php" class="card-link" target="_blank">
+                                        <div class="card-tit">session实战</div>
+                                        <div class="card-desc">PHP版本：php>=5.54</div>
+                                    </a>
+                                </div>
+
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-7/challenge2/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">phar案例</div>
+                                        <div class="card-desc">PHP生成phar文件</div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-7/challenge2/2.php" class="card-link" target="_blank">
+                                        <div class="card-tit">phar实战</div>
+                                        <div class="card-desc">phar反序列化漏洞利用</div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="item card-box" id="row-18">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="item-tit">
+                                <strong>8 补充内容</strong>
+                            </div>
+                            <!--获取内容列表-->
+                            <div class="clearfix two-list-box">
+                                <div class="col-md-3 col-sm-4 col-xs-6">
+                                    <a href="./Less-8/challenge1/1.php" class="card-link" target="_blank">
+                                        <div class="card-tit">引用</div>
+                                        <div class="card-desc">引用案例</div>
+                                    </a>
+                                </div>                                
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <!--内容区域-->
+        </div>
+        <div id="get-top" title="回到顶部">
+            <i class="icon icon-arrow-up"></i>
+        </div>
+
+        <!-- jQuery (ZUI中的Javascript组件依赖于jQuery) -->
+        <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+
+        <script>
+            window.onscroll = function () {
+                //回到顶部
+                var sllTop = document.documentElement.scrollTop || document.body.scrollTop;
+                if (sllTop > 240) {
+                    $('#get-top').css('display', 'block')
+                } else {
+                    $('#get-top').css('display', 'none')
+                }
+            }
+            $('#get-top').click(function () {
+                $('body,html').animate({
+                    scrollTop: 0
+                }, 800);//点击回到顶部按钮，数字越小越快
+            })
+            //判断用户使用的设备
+            var deviceVal = browserRedirect();
+            function browserRedirect() {
+                var sUserAgent = navigator.userAgent.toLowerCase();
+                var bIsIpad = sUserAgent.match(/ipad/i) == "ipad";
+                var bIsIphoneOs = sUserAgent.match(/iphone os/i) == "iphone os";
+                var bIsMidp = sUserAgent.match(/midp/i) == "midp";
+                var bIsUc7 = sUserAgent.match(/rv:1.2.3.4/i) == "rv:1.2.3.4";
+                var bIsUc = sUserAgent.match(/ucweb/i) == "ucweb";
+                var bIsAndroid = sUserAgent.match(/android/i) == "android";
+                var bIsCE = sUserAgent.match(/windows ce/i) == "windows ce";
+                var bIsWM = sUserAgent.match(/windows mobile/i) == "windows mobile";
+                if (bIsIpad || bIsIphoneOs || bIsMidp || bIsUc7 || bIsUc || bIsAndroid || bIsCE || bIsWM) {
+                    return 'phone';
+                } else {
+                    return 'pc';
+                }
+            }
+            $('.nav-btn').on('click', function () {
+                $('.nav').toggleClass('showNav');
+                $(this).toggleClass('animated2');
+            });
+
+            // 默认搜索引擎的内容，如果界面修改了需要同步修改
+            var thisSearch = 'http://www.caup.cn/search?q=';
+
+            $('#txt').keydown(function (ev) {
+                // 回车键的处理
+                if (ev.keyCode == 13) {
+                    window.open(thisSearch + $('#txt').val())
+                    // $('#txt').val('');
+                    $('#box ul').html('')
+                }
+            })
+            $(function () {
+                // 搜索引擎列表，样式一行五个内容，自动换行
+                var search = {
+                    data: [{
+                        name: '小众搜索',
+                        url: 'http://www.caup.cn/search?q='
+                    }, {
+                        name: '百度',
+                        url: 'https://www.baidu.com/s?wd='
+                    }, {
+                        name: '谷歌',
+                        url: 'https://www.google.com/search?q='
+                    }, {
+                        name: '必应',
+                        url: 'https://cn.bing.com/search?q='
+                    }, {
+                        name: '好搜',
+                        url: 'https://www.so.com/s?q='
+                    }, {
+                        name: '搜狗',
+                        url: 'https://www.sogou.com/web?query='
+                    }, {
+                        name: '淘宝',
+                        url: 'https://s.taobao.com/search?q='
+                    }, {
+                        name: '京东',
+                        url: 'http://search.jd.com/Search?keyword='
+                    }, {
+                        name: '天猫',
+                        url: 'https://list.tmall.com/search_product.htm?q='
+                    }, {
+                        name: '1688',
+                        url: 'https://s.1688.com/selloffer/offer_search.htm?keywords='
+                    }, {
+                        name: '知乎',
+                        url: 'https://www.zhihu.com/search?type=content&q='
+                    }, {
+                        name: '微博',
+                        url: 'https://s.weibo.com/weibo/'
+                    }, {
+                        name: 'Bilibili',
+                        url: 'http://search.bilibili.com/all?keyword='
+                    }, {
+                        name: '豆瓣',
+                        url: 'https://www.douban.com/search?source=suggest&q='
+                    }, {
+                        name: '优酷',
+                        url: 'https://so.youku.com/search_video/q_'
+                    }, {
+                        name: 'GitHub',
+                        url: 'https://github.com/search?q='
+                    }]
+                }
+                for (var i = 0; i < search.data.length; i++) {
+                    var addList = '<li>' + search.data[i].name + '</li>'
+                    $('.search-engine-list').append(addList);
+                }
+                $('.search-engine-name, .search-engine').hover(function () {
+                    $('.search-engine').css('display', 'block')
+                }, function () {
+                    $('.search-engine').css('display', 'none')
+                });
+                $('.search-engine-list li').click(function () {
+                    var _index = $(this).index();
+                    var searchNameBtn = document.getElementById("search-engine-name");
+                    searchNameBtn.innerHTML = search.data[_index].name;
+                    thisSearch = search.data[_index].url;
+                    $('.search-engine').css('display', 'none')
+                })
+            })
+            $("#search-btn").click(function () {
+                var textValue = $('#txt').val();
+                if (textValue != '') {
+                    window.open(thisSearch + textValue)
+                }
+            });
+        </script>
+    </div>
+</body>
+
+</html>
