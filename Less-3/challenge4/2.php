@@ -16,7 +16,7 @@ class Animal{
     }
 
     public function __wakeup(){ 
-        $this->name = 'echo "111" ';
+        // $this->name = 'echo "111" ';
         eval($this->name);
     }  
 }  
